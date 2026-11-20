@@ -9,15 +9,17 @@
     <RootNamespace>ImageViewer</RootNamespace>
     <AssemblyName>ImageViewer</AssemblyName>
     <LangVersion>latest</LangVersion>
-    <AssemblyVersion>1.2.1.0</AssemblyVersion>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
-    <ApplicationIcon>Resources\final_owl_icon_256.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\ImageViewerIcon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Resources\final_owl_icon_256.ico" />
+    <None Remove="Resources\ImageViewerIcon.ico" />
+    <Page Remove="Resources\ImageViewerIcon.xaml" />
+    <None Include="Resources\ImageViewerIcon.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\final_owl_icon_256.ico" />
+    <Resource Include="Resources\ImageViewerIcon.ico" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />

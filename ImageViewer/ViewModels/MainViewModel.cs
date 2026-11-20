@@ -18,7 +18,8 @@ public partial class MainViewModel : ObservableObject
 {
     private const double ScaleMax = 50.0;
     private const double ZoomStep = 1.1;
-    private const double MinRemainPx = 50.0;
+    /// <summary>图片移动后保留的可见尺寸，以及缩小后的目标最小长边，单位为 WPF DIP。</summary>
+    private const double MinVisibleSize = 50.0;
     private readonly ImageModel _imageModel;
     private Point _dragStart;
     private Point _roiStartPixel;
@@ -27,7 +28,17 @@ public partial class MainViewModel : ObservableObject
 
     /// <summary>供画布读取的图像数据。</summary>
     public ImageModel ImageData => _imageModel;
-    private double ScaleMin => Math.Min(1.0, MinRemainPx / Math.Max(_imageModel.Width, _imageModel.Height));
+
+    /// <summary>缩小后长边至少为 50 DIP，小图最低为原始尺寸；画布更小时允许完整适配。</summary>
+    private double ScaleMin
+    {
+        get
+        {
+            double minimumImageScale = MinVisibleSize / Math.Max(_imageModel.Width, _imageModel.Height);
+            double fitScale = Math.Min(CanvasWidth / _imageModel.Width, CanvasHeight / _imageModel.Height);
+            return Math.Min(1.0, Math.Min(minimumImageScale, fitScale));
+        }
+    }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanUsePseudoColor))]
@@ -376,9 +387,8 @@ public partial class MainViewModel : ObservableObject
         _lastPixelY = y;
         PixelLocationText = $"X:{x}, Y:{y}";
         double[] raw = _imageModel.GetPixelRaw(x, y);
-        string[] labels = GetChannelLabels(raw.Length);
-        PixelValueText = string.Join("  ", raw.Select((value, channel) =>
-            $"{labels[channel]}={FormatValue(value)}"));
+        string values = string.Join(", ", raw.Select(FormatValue));
+        PixelValueText = $"({values})";
     }
 
     /// <summary>清空图外或鼠标离开画布时的读数。</summary>
@@ -487,13 +497,21 @@ public partial class MainViewModel : ObservableObject
         }
 
         IsAutoFit = false;
-        double visibleX = Math.Min(MinRemainPx, Math.Min(CanvasWidth, _imageModel.Width * ImgScale));
-        double visibleY = Math.Min(MinRemainPx, Math.Min(CanvasHeight, _imageModel.Height * ImgScale));
-        ShowX = Math.Clamp(ShowX + dx / ImgScale,
-            (visibleX - CanvasWidth) / ImgScale, _imageModel.Width - visibleX / ImgScale);
-        ShowY = Math.Clamp(ShowY + dy / ImgScale,
-            (visibleY - CanvasHeight) / ImgScale, _imageModel.Height - visibleY / ImgScale);
+        ShowX += dx / ImgScale;
+        ShowY += dy / ImgScale;
+        ConstrainViewport();
         RequestRender();
+    }
+
+    /// <summary>限制视口位置，使横纵方向各保留至少 50 DIP 的图片；不足时保留该方向的完整尺寸。</summary>
+    private void ConstrainViewport()
+    {
+        double visibleX = Math.Min(MinVisibleSize, Math.Min(CanvasWidth, _imageModel.Width * ImgScale));
+        double visibleY = Math.Min(MinVisibleSize, Math.Min(CanvasHeight, _imageModel.Height * ImgScale));
+        ShowX = Math.Clamp(ShowX,
+            (visibleX - CanvasWidth) / ImgScale, _imageModel.Width - visibleX / ImgScale);
+        ShowY = Math.Clamp(ShowY,
+            (visibleY - CanvasHeight) / ImgScale, _imageModel.Height - visibleY / ImgScale);
     }
 
     /// <summary>取消未提交的鼠标操作，保留上次确认的 ROI。</summary>
@@ -562,27 +580,27 @@ public partial class MainViewModel : ObservableObject
         StatusMessage = "滚轮缩放 · 右键拖动平移 · R 选区 · C 十字线 · Ctrl+0 自动适配";
     }
 
-    /// <summary>适配并居中，允许超大图低于手动倍率下限以完整显示。</summary>
+    /// <summary>适配并居中，使用统一的倍率和可见范围限制。</summary>
     private void FitToCanvas()
     {
         double scale = Math.Min(CanvasWidth / _imageModel.Width, CanvasHeight / _imageModel.Height);
-        SetViewport(Math.Min(scale, ScaleMax),
+        SetViewport(scale,
             new Point(_imageModel.Width / 2.0, _imageModel.Height / 2.0),
-            new Point(CanvasWidth / 2.0, CanvasHeight / 2.0), false);
+            new Point(CanvasWidth / 2.0, CanvasHeight / 2.0));
     }
 
-    /// <summary>统一更新倍率和视口，把原图锚点固定在指定画布位置。</summary>
+    /// <summary>统一限制倍率并更新视口，优先保留锚点，触及边界时保证部分图片可见。</summary>
     /// <param name="scale">目标倍率。</param>
     /// <param name="sourceAnchor">原图锚点。</param>
     /// <param name="canvasAnchor">画布锚点。</param>
-    /// <param name="limitMinimum">是否应用手动倍率下限。</param>
-    private void SetViewport(double scale, Point sourceAnchor, Point canvasAnchor, bool limitMinimum = true)
+    private void SetViewport(double scale, Point sourceAnchor, Point canvasAnchor)
     {
-        ImgScale = limitMinimum ? Math.Clamp(scale, ScaleMin, ScaleMax) : scale;
+        ImgScale = Math.Clamp(scale, ScaleMin, ScaleMax);
         ShowW = CanvasWidth / ImgScale;
         ShowH = CanvasHeight / ImgScale;
         ShowX = sourceAnchor.X - canvasAnchor.X / ImgScale;
         ShowY = sourceAnchor.Y - canvasAnchor.Y / ImgScale;
+        ConstrainViewport();
         ScaleText = $"{ImgScale * 100:0.##}%";
         ScaleInputText = FormatScaleInput(ImgScale);
         RequestRender();
@@ -624,13 +642,13 @@ public partial class MainViewModel : ObservableObject
         StatusMessage = "ROI 已更新，统计基于原始像素；关闭 ROI 工具仍保留选区。";
     }
 
-    /// <summary>提供 OpenCV 通道顺序对应的名称。</summary>
+    /// <summary>提供通道显示名称，单通道使用 Value，多通道遵循 OpenCV 通道顺序。</summary>
     /// <param name="channels">图像通道数。</param>
     private static string[] GetChannelLabels(int channels)
     {
         return channels switch
         {
-            1 => ["Gray"],
+            1 => ["Value"],
             2 => ["Gray", "A"],
             3 => ["B", "G", "R"],
             _ => ["B", "G", "R", "A"]

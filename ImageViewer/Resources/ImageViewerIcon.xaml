@@ -1,0 +1,73 @@
+<!-- 应用图标矢量源：图片框、像素放大镜与透明外边距。 -->
+<DrawingImage xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+    <DrawingImage.Drawing>
+        <DrawingGroup>
+            <GeometryDrawing Brush="Transparent" Geometry="M0,0 H256 V256 H0 Z" />
+            <GeometryDrawing>
+                <GeometryDrawing.Brush>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#245C83" Offset="0" />
+                        <GradientStop Color="#102A46" Offset="1" />
+                    </LinearGradientBrush>
+                </GeometryDrawing.Brush>
+                <GeometryDrawing.Geometry>
+                    <RectangleGeometry Rect="12,12,232,232" RadiusX="52" RadiusY="52" />
+                </GeometryDrawing.Geometry>
+            </GeometryDrawing>
+
+            <!-- 浅色相框与内部风景。 -->
+            <GeometryDrawing Brush="#EDF8FF">
+                <GeometryDrawing.Geometry>
+                    <RectangleGeometry Rect="42,48,148,128" RadiusX="17" RadiusY="17" />
+                </GeometryDrawing.Geometry>
+            </GeometryDrawing>
+            <GeometryDrawing Brush="#80D6EA">
+                <GeometryDrawing.Geometry>
+                    <RectangleGeometry Rect="53,59,126,104" RadiusX="8" RadiusY="8" />
+                </GeometryDrawing.Geometry>
+            </GeometryDrawing>
+            <GeometryDrawing Brush="#FFD46E">
+                <GeometryDrawing.Geometry>
+                    <EllipseGeometry Center="82,86" RadiusX="12" RadiusY="12" />
+                </GeometryDrawing.Geometry>
+            </GeometryDrawing>
+            <GeometryDrawing Brush="#329B9B" Geometry="M53,140 L92,103 L125,136 L147,115 L179,143 V155 Q179,163 171,163 H61 Q53,163 53,155 Z" />
+            <GeometryDrawing Brush="#24627C" Geometry="M53,154 L107,121 L155,163 H61 Q53,163 53,155 Z" />
+
+            <!-- 放大镜手柄置于镜圈后方，镜内色块代表原始像素检查。 -->
+            <GeometryDrawing Geometry="M188,183 L215,210">
+                <GeometryDrawing.Pen>
+                    <Pen Brush="#6BE0D4" Thickness="18" StartLineCap="Round" EndLineCap="Round" />
+                </GeometryDrawing.Pen>
+            </GeometryDrawing>
+            <GeometryDrawing Brush="#153F5B">
+                <GeometryDrawing.Pen>
+                    <Pen Brush="#F2FCFF" Thickness="9" />
+                </GeometryDrawing.Pen>
+                <GeometryDrawing.Geometry>
+                    <EllipseGeometry Center="161,155" RadiusX="39" RadiusY="39" />
+                </GeometryDrawing.Geometry>
+            </GeometryDrawing>
+            <GeometryDrawing Brush="#EFFBFF">
+                <GeometryDrawing.Geometry>
+                    <RectangleGeometry Rect="145,139,13,13" RadiusX="2" RadiusY="2" />
+                </GeometryDrawing.Geometry>
+            </GeometryDrawing>
+            <GeometryDrawing Brush="#6BE0D4">
+                <GeometryDrawing.Geometry>
+                    <RectangleGeometry Rect="164,139,13,13" RadiusX="2" RadiusY="2" />
+                </GeometryDrawing.Geometry>
+            </GeometryDrawing>
+            <GeometryDrawing Brush="#5CA9D6">
+                <GeometryDrawing.Geometry>
+                    <RectangleGeometry Rect="145,158,13,13" RadiusX="2" RadiusY="2" />
+                </GeometryDrawing.Geometry>
+            </GeometryDrawing>
+            <GeometryDrawing Brush="#EFFBFF">
+                <GeometryDrawing.Geometry>
+                    <RectangleGeometry Rect="164,158,13,13" RadiusX="2" RadiusY="2" />
+                </GeometryDrawing.Geometry>
+            </GeometryDrawing>
+        </DrawingGroup>
+    </DrawingImage.Drawing>
+</DrawingImage>

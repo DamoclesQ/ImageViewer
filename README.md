@@ -41,7 +41,8 @@ ImageViewer/
 ├─ Models/
 │  └─ ImageModel.cs
 ├─ Resources/
-│  └─ final_owl_icon_256.ico
+│  ├─ ImageViewerIcon.ico
+│  └─ ImageViewerIcon.xaml
 ├─ ViewModels/
 │  └─ MainViewModel.cs
 └─ Views/
@@ -94,11 +95,11 @@ dotnet build ImageViewer\ImageViewer.csproj
 - 图像 OpenCV 类型，例如 `CV_8UC3`、`CV_32FC1`
 - 当前像素的原始通道值
 
-通道显示顺序遵循 OpenCV：
+像素值不带通道名称前缀，使用圆括号包裹，通道顺序遵循 OpenCV：
 
-- 单通道：`Gray`
-- 三通道：`B`、`G`、`R`
-- 四通道：`B`、`G`、`R`、`A`
+- 单通道：例如 `(128)`
+- 三通道：按 B、G、R 顺序，例如 `(12, 34, 56)`
+- 四通道：按 B、G、R、A 顺序，例如 `(12, 34, 56, 255)`
 
 ### ROI 统计
 
@@ -124,11 +125,13 @@ dotnet build ImageViewer\ImageViewer.csproj
 应用版本来自项目文件中的程序集版本配置：
 
 ```xml
-<AssemblyVersion>1.2.1.0</AssemblyVersion>
+<AssemblyVersion>1.0.0.0</AssemblyVersion>
 <FileVersion>1.0.0.0</FileVersion>
 ```
 
 About 对话框会读取应用程序集版本并自动显示。
+
+应用图标采用图片框与像素放大镜样式。`ImageViewerIcon.xaml` 为可编辑矢量源，`ImageViewerIcon.ico` 包含 16、24、32、48、64、128、256 像素图像。修改矢量源后，可在 Windows PowerShell 中执行 `./tools/Generate-AppIcon.ps1` 重新生成 ICO。
 
 ## 操作与开发文档
 

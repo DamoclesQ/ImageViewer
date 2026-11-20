@@ -7,7 +7,7 @@
         Width="1100" Height="740" MinWidth="720" MinHeight="480"
         AllowDrop="True" FontFamily="Microsoft YaHei" FontSize="12"
         Background="#2F4F4F" WindowStartupLocation="CenterScreen"
-        Icon="pack://application:,,,/ImageViewer;component/Resources/final_owl_icon_256.ico">
+        Icon="pack://application:,,,/ImageViewer;component/Resources/ImageViewerIcon.ico">
     <Window.Resources>
         <conv:BoolToActiveBrushConverter x:Key="ActiveBrush" />
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
