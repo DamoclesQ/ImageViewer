@@ -50,11 +50,16 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
 
-    /// <summary>处理窗口快捷键，编辑框保留普通字符、方向键和 Ctrl 编辑组合键。</summary>
+    /// <summary>处理查看快捷键，菜单导航和输入控件优先使用自身的键盘行为。</summary>
     /// <param name="sender">主窗口。</param>
     /// <param name="e">键盘事件。</param>
     private void OnPreviewKeyDown(object sender, KeyEventArgs e)
     {
+        if (mainMenu.IsKeyboardFocusWithin || mainMenu.Items.OfType<MenuItem>().Any(item => item.IsSubmenuOpen))
+        {
+            return;
+        }
+
         bool control = Keyboard.Modifiers == ModifierKeys.Control;
         ICommand? command = null;
         if (control)
@@ -109,12 +114,28 @@ public partial class MainWindow : Window
         _vm.CancelPointerInteraction();
     }
 
-    /// <summary>将颜色按钮的选择同步到视图模型。</summary>
-    /// <param name="sender">带有颜色标记的单选按钮。</param>
-    /// <param name="e">按钮点击事件。</param>
+    /// <summary>打开菜单指定的倍率、Gamma 或 ROI 输入窗口。</summary>
+    /// <param name="sender">带有输入区域标记的菜单项。</param>
+    /// <param name="e">菜单点击事件。</param>
+    private void OnEditImageInputClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is MenuItem { Tag: string section })
+        {
+            var window = new ImageInputWindow(_vm, section)
+            {
+                Owner = this
+            };
+            window.ShowDialog();
+            imageCanvas.Focus();
+        }
+    }
+
+    /// <summary>更新叠加颜色，保持颜色子菜单中恰好一项勾选。</summary>
+    /// <param name="sender">带有颜色标记的菜单项。</param>
+    /// <param name="e">菜单点击事件。</param>
     private void OnOverlayColorClick(object sender, RoutedEventArgs e)
     {
-        if (sender is RadioButton { Tag: string tag })
+        if (sender is MenuItem { Tag: string tag } selectedItem)
         {
             _vm.BrushColor = tag switch
             {
@@ -122,6 +143,11 @@ public partial class MainWindow : Window
                 "Blue" => Colors.Blue,
                 _ => Colors.Red
             };
+
+            foreach (MenuItem item in overlayColorMenu.Items.OfType<MenuItem>())
+            {
+                item.IsChecked = ReferenceEquals(item, selectedItem);
+            }
         }
     }
 }
