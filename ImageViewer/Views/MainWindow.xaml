@@ -1,0 +1,289 @@
+<Window x:Class="ImageViewer.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:conv="clr-namespace:ImageViewer.Converters"
+        xmlns:ctrl="clr-namespace:ImageViewer.Controls"
+        Title="ImageViewer"
+        Width="1100" Height="740" MinWidth="720" MinHeight="480"
+        AllowDrop="True" FontFamily="Microsoft YaHei" FontSize="12"
+        Background="#2F4F4F" WindowStartupLocation="CenterScreen"
+        Icon="pack://application:,,,/ImageViewer;component/Resources/final_owl_icon_256.ico">
+    <Window.Resources>
+        <conv:BoolToActiveBrushConverter x:Key="ActiveBrush" />
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
+        <Style x:Key="ToolButton" TargetType="Button">
+            <Setter Property="Padding" Value="8,3" />
+            <Setter Property="Margin" Value="2" />
+            <Setter Property="MinHeight" Value="28" />
+            <Setter Property="Background" Value="#ECEFF1" />
+            <Setter Property="BorderBrush" Value="#A6AFB5" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="ToolTipService.ShowOnDisabled" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="buttonBorder" Padding="{TemplateBinding Padding}"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="3">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="buttonBorder" Property="BorderBrush" Value="#2671A0" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="buttonBorder" Property="Opacity" Value="0.7" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="buttonBorder" Property="BorderBrush" Value="#2671A0" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="buttonBorder" Property="Opacity" Value="0.4" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ColorButton" TargetType="RadioButton">
+            <Setter Property="Width" Value="24" />
+            <Setter Property="Height" Value="24" />
+            <Setter Property="Margin" Value="2,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="colorBorder" Padding="4" CornerRadius="4"
+                                Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="colorBorder" Property="Background" Value="#D3E5F0" />
+                                <Setter TargetName="colorBorder" Property="BorderBrush" Value="#2671A0" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="colorBorder" Property="BorderBrush" Value="#2671A0" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="colorBorder" Property="BorderBrush" Value="#2671A0" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="colorBorder" Property="Opacity" Value="0.4" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ToolSeparator" TargetType="Border">
+            <Setter Property="Width" Value="1" />
+            <Setter Property="Height" Value="20" />
+            <Setter Property="Margin" Value="7,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Background" Value="#BAC5CD" />
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Padding" Value="4,3" />
+            <Setter Property="Margin" Value="3,2" />
+            <Setter Property="MinHeight" Value="28" />
+        </Style>
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="5,0,2,0" />
+            <Setter Property="Foreground" Value="#344650" />
+        </Style>
+        <Style x:Key="StatusLabel" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Consolas" />
+            <Setter Property="Foreground" Value="#F0F0E8" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="6,0" />
+        </Style>
+        <Style x:Key="StatusSeparator" TargetType="Border">
+            <Setter Property="Width" Value="1" />
+            <Setter Property="Height" Value="14" />
+            <Setter Property="Margin" Value="2,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Background" Value="#70808A" />
+        </Style>
+    </Window.Resources>
+
+    <DockPanel>
+        <!-- 两行工具栏直接显示全部功能，窄窗口按操作组换行。 -->
+        <Border DockPanel.Dock="Top" Background="#E0E5E8" Padding="6,4">
+            <StackPanel>
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Content="关于" Command="{Binding ShowAboutCommand}"
+                            VerticalAlignment="Top" Style="{StaticResource ToolButton}" />
+                    <WrapPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="打开" Command="{Binding OpenFileCommand}"
+                                    Style="{StaticResource ToolButton}" ToolTip="打开图片 (Ctrl+O)" />
+                            <Border Style="{StaticResource ToolSeparator}" />
+                            <Button Content="Auto" Command="{Binding AutoFitCommand}"
+                                    Background="{Binding IsAutoFit, Converter={StaticResource ActiveBrush}}"
+                                    Style="{StaticResource ToolButton}" ToolTip="自动适配，窗口变化时继续适配 (Ctrl+0)" />
+                            <Button Content="1:1" Command="{Binding InitSizeCommand}"
+                                    Style="{StaticResource ToolButton}" ToolTip="原始尺寸，按 WPF 显示单位计算 (Ctrl+1)" />
+                            <StackPanel Orientation="Horizontal" Margin="4,0" IsEnabled="{Binding HasImage}">
+                                <TextBox x:Name="scaleInput" Width="64" Text="{Binding ScaleInputText, UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="倍率：100、150% 或 2x；Enter 应用">
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Key="Enter" Command="{Binding ApplyScaleCommand}" />
+                                    </TextBox.InputBindings>
+                                </TextBox>
+                                <Button Content="%" Command="{Binding ApplyScaleCommand}" Style="{StaticResource ToolButton}" />
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Style="{StaticResource ToolSeparator}" />
+                            <Button Content="ROI" Command="{Binding ToggleRoiCommand}"
+                                    Background="{Binding IsSelectRoi, Converter={StaticResource ActiveBrush}}"
+                                    Style="{StaticResource ToolButton}" ToolTip="左键选择 ROI (R)，关闭工具保留选区" />
+                            <Button Content="十字线" Command="{Binding ToggleCrosshairCommand}"
+                                    Background="{Binding IsShowCrosshair, Converter={StaticResource ActiveBrush}}"
+                                    Style="{StaticResource ToolButton}" ToolTip="图像中心十字线 (C)" />
+                            <Button Content="伪彩色" Command="{Binding TogglePseudoColorCommand}"
+                                    Background="{Binding IsPseudoColor, Converter={StaticResource ActiveBrush}}"
+                                    Style="{StaticResource ToolButton}" ToolTip="仅单通道图像支持 Jet 伪彩色" />
+                            <Button Content="平滑" Command="{Binding ToggleSmoothScalingCommand}"
+                                    Background="{Binding IsSmoothScaling, Converter={StaticResource ActiveBrush}}"
+                                    Style="{StaticResource ToolButton}" ToolTip="平滑浏览；30 倍起仍使用最近邻显示像素" />
+                            <Button Content="文字背景" Command="{Binding ToggleTextBackCommand}"
+                                    Background="{Binding IsUseTextBack, Converter={StaticResource ActiveBrush}}"
+                                    Style="{StaticResource ToolButton}" ToolTip="切换 50 倍像素文字背景" />
+                        </StackPanel>
+                    </WrapPanel>
+                </DockPanel>
+
+                <WrapPanel IsEnabled="{Binding HasImage}" Margin="0,3,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Gamma" Style="{StaticResource FieldLabel}" />
+                        <TextBox x:Name="gammaInput" Width="52" Text="{Binding GammaText, UpdateSourceTrigger=PropertyChanged}"
+                                 ToolTip="范围 0.05～20；小于 1 提亮，大于 1 压暗；不改变原始像素">
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Enter" Command="{Binding ApplyGammaCommand}" />
+                            </TextBox.InputBindings>
+                        </TextBox>
+                        <Button Content="应用" Command="{Binding ApplyGammaCommand}" Style="{StaticResource ToolButton}" />
+                        <Button Content="重置" Command="{Binding ResetGammaCommand}" Style="{StaticResource ToolButton}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Border Style="{StaticResource ToolSeparator}" />
+                        <TextBlock Text="颜色" Style="{StaticResource FieldLabel}" />
+                        <RadioButton GroupName="OverlayColor" Tag="Red" IsChecked="True"
+                                     Style="{StaticResource ColorButton}" Click="OnOverlayColorClick"
+                                     ToolTip="红色叠加层" AutomationProperties.Name="红色叠加层">
+                            <Ellipse Width="12" Height="12" Fill="Red" />
+                        </RadioButton>
+                        <RadioButton GroupName="OverlayColor" Tag="Green"
+                                     Style="{StaticResource ColorButton}" Click="OnOverlayColorClick"
+                                     ToolTip="绿色叠加层" AutomationProperties.Name="绿色叠加层">
+                            <Ellipse Width="12" Height="12" Fill="Green" />
+                        </RadioButton>
+                        <RadioButton GroupName="OverlayColor" Tag="Blue"
+                                     Style="{StaticResource ColorButton}" Click="OnOverlayColorClick"
+                                     ToolTip="蓝色叠加层" AutomationProperties.Name="蓝色叠加层">
+                            <Ellipse Width="12" Height="12" Fill="Blue" />
+                        </RadioButton>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Border Style="{StaticResource ToolSeparator}" />
+                        <TextBlock Text="ROI" Style="{StaticResource FieldLabel}" />
+                        <TextBlock Text="X" Style="{StaticResource FieldLabel}" />
+                        <TextBox Width="52" Text="{Binding RoiXText, UpdateSourceTrigger=PropertyChanged}" ToolTip="左上角 X，从 0 开始">
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Enter" Command="{Binding ApplyCustomRoiCommand}" />
+                            </TextBox.InputBindings>
+                        </TextBox>
+                        <TextBlock Text="Y" Style="{StaticResource FieldLabel}" />
+                        <TextBox Width="52" Text="{Binding RoiYText, UpdateSourceTrigger=PropertyChanged}" ToolTip="左上角 Y，从 0 开始">
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Enter" Command="{Binding ApplyCustomRoiCommand}" />
+                            </TextBox.InputBindings>
+                        </TextBox>
+                        <TextBlock Text="宽" Style="{StaticResource FieldLabel}" />
+                        <TextBox Width="52" Text="{Binding RoiWText, UpdateSourceTrigger=PropertyChanged}" ToolTip="ROI 宽度，正整数">
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Enter" Command="{Binding ApplyCustomRoiCommand}" />
+                            </TextBox.InputBindings>
+                        </TextBox>
+                        <TextBlock Text="高" Style="{StaticResource FieldLabel}" />
+                        <TextBox Width="52" Text="{Binding RoiHText, UpdateSourceTrigger=PropertyChanged}" ToolTip="ROI 高度，正整数">
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Enter" Command="{Binding ApplyCustomRoiCommand}" />
+                            </TextBox.InputBindings>
+                        </TextBox>
+                        <Button Content="设置" Command="{Binding ApplyCustomRoiCommand}"
+                                Style="{StaticResource ToolButton}" ToolTip="应用手动 ROI" />
+                        <Button Content="清除" Command="{Binding ClearRoiCommand}"
+                                Style="{StaticResource ToolButton}" ToolTip="仅清除 ROI，保留十字线" />
+                    </StackPanel>
+                </WrapPanel>
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="#A52A2A" Margin="5,4"
+                           TextWrapping="Wrap"
+                           Visibility="{Binding HasError, Converter={StaticResource BoolToVisibility}}" />
+            </StackPanel>
+        </Border>
+
+        <!-- 左侧显示查看状态，右侧显示当前图像信息，鼠标读数变化不移动右侧分组。 -->
+        <Border DockPanel.Dock="Bottom" Background="#30383D" Height="26">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="55*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="45*" />
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="{Binding ScaleText}"
+                               Style="{StaticResource StatusLabel}" ToolTip="缩放率" />
+                    <Border Grid.Column="1" Style="{StaticResource StatusSeparator}" />
+                    <TextBlock Grid.Column="2" Text="{Binding PixelLocationText}"
+                               Style="{StaticResource StatusLabel}" ToolTip="原图像素坐标" />
+                    <Border Grid.Column="3" Style="{StaticResource StatusSeparator}" />
+                    <TextBlock Grid.Column="4" Text="{Binding PixelValueText}" TextTrimming="CharacterEllipsis"
+                               Style="{StaticResource StatusLabel}" ToolTip="{Binding PixelValueText}" />
+                </Grid>
+                <Border Grid.Column="1" Style="{StaticResource StatusSeparator}" />
+                <Grid Grid.Column="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="{Binding ImageTypeText}"
+                               Style="{StaticResource StatusLabel}" ToolTip="图像类型" />
+                    <Border Grid.Column="1" Style="{StaticResource StatusSeparator}" />
+                    <TextBlock Grid.Column="2" Text="{Binding ImageSizeText}"
+                               Style="{StaticResource StatusLabel}" ToolTip="图像尺寸（宽 × 高）" />
+                    <Border Grid.Column="3" Style="{StaticResource StatusSeparator}" />
+                    <TextBlock Grid.Column="4" Text="{Binding ImgInfoText}" TextTrimming="CharacterEllipsis"
+                               Style="{StaticResource StatusLabel}" ToolTip="{Binding ImgPathToolTip}" />
+                </Grid>
+            </Grid>
+        </Border>
+        <Grid>
+            <ctrl:ImageCanvasControl x:Name="imageCanvas" Focusable="True" />
+            <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8" Padding="8,5"
+                    MaxWidth="600" CornerRadius="3" Background="#DD30383D" IsHitTestVisible="False"
+                    Visibility="{Binding HasRoi, Converter={StaticResource BoolToVisibility}}">
+                <TextBlock x:Name="roiSummary" Text="{Binding RoiInfoText}" FontFamily="Consolas"
+                           Foreground="#C7E7F1" TextWrapping="Wrap" />
+            </Border>
+        </Grid>
+    </DockPanel>
+</Window>
